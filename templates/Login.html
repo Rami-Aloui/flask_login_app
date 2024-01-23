@@ -304,14 +304,24 @@
 </div>
 <div class="message other-message float-right">Hola! ¿Cómo te puedo ayudar?</div>
 </li>
-{% if recived_user_msg is not none %}
+{% if recived_user_msg is not none and time_human_msg is not none %}
 <li class="clearfix">
 <div class="message-data">
-<span class="message-data-time">{{time_human_msg}}, Today</span>
+<span class="message-data-time">{{time_human_msg}}</span>
 </div>
 <div class="message my-message">{{recived_user_msg}}</div>
 </li>
 {% endif %}
+{% if ai_response is not none and time_human_msg is not none %}
+<li class="clearfix">
+    <div class="message-data text-right">
+    <span class="message-data-time"><input type="text" name="time_bot_msg" id="time_bot_msg" value="{{time_human_msg}}"  style="background-color:#f4f7f6; border: none;border-color: transparent;" readonly></span>
+    <img style ="transform: scaleX(-1);" src="https://cdn3d.iconscout.com/3d/premium/thumb/chatbot-6899426-5627910.png" alt="avatar">
+    </div>
+    <div class="message other-message float-right">{{ai_response}}</div>
+</li>
+{% endif %}
+
 </ul>
 </div>
 <div class="chat-message clearfix">

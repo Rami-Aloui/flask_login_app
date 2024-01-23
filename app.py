@@ -2,10 +2,13 @@ from flask import Flask,render_template,request,session,redirect,flash;
 from neo4j import GraphDatabase,basic_auth;
 from cryptography.fernet import Fernet;
 from datetime import datetime;
+from langchain.memory import ChatMessageHistory;
+from langchain.chat_models import ChatOpenAI;
 app = Flask(__name__)
 app.secret_key = 'secret-key'
 driver=GraphDatabase.driver(uri="bolt://172.176.235.251:7687",auth=basic_auth("neo4j","oPX^xVySa7u04AbR"))
 session=driver.session()
+open_ai_key='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'
 @app.route('/',methods=["GET","POST"])
 def index():
     return render_template('index.html')
@@ -33,7 +36,7 @@ def Verify():
     mail=request.form["mail"]
     pswd=request.form["pswd"]
     now = datetime.now()
-    bot_time = now.strftime('%I:%M %p')+",Today"
+    bot_time = now.strftime('%I:%M %p')
     query="""MATCH (n:Usuario) WHERE n.mail ='"""+mail+"""' RETURN n
     """  
     results=session.run(query)
@@ -43,7 +46,7 @@ def Verify():
         Second_f = Fernet(second_key)
         decryptedData = Second_f.decrypt(x[0]['n']['pswd'].encode())
         if decryptedData.decode()==pswd:
-            return render_template('Login.html',username=x[0]['n']['username'].capitalize(),time_bot_msg=bot_time,recived_user_msg=None)
+            return render_template('Login.html',username=x[0]['n']['username'].capitalize(),time_bot_msg=bot_time,recived_user_msg=None,time_human_msg=None,ai_response=None)
         else:
             flash(f"You have to verify your password", "danger")
             return redirect("/registered", code=302)
@@ -57,5 +60,10 @@ def send_msg():
     time_bot_msg=request.form["time_bot_msg"]
     time = datetime.now()
     human_time = time.strftime('%I:%M %p')
-    return render_template('Login.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg)
+    chat = ChatOpenAI(temperature=0, openai_api_key=open_ai_key)
+    history = ChatMessageHistory()
+    history.add_ai_message("hi!")
+    history.add_user_message(recived_user_msg)
+    ai_response = chat(history.messages)
+    return render_template('Login.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg,ai_response=ai_response.content)
 app.run(debug=True)
