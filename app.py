@@ -4,11 +4,25 @@ from cryptography.fernet import Fernet;
 from datetime import datetime;
 from langchain.memory import ChatMessageHistory;
 from langchain.chat_models import ChatOpenAI;
+from langchain.chat_models import AzureChatOpenAI
+from langchain.memory import ChatMessageHistory
+from langchain_community.chat_message_histories.neo4j import Neo4jChatMessageHistory
+from langchain.schema import HumanMessage,AIMessage
+import os
+import uuid
 app = Flask(__name__)
 app.secret_key = 'secret-key'
 driver=GraphDatabase.driver(uri="bolt://172.176.235.251:7687",auth=basic_auth("neo4j","oPX^xVySa7u04AbR"))
 session=driver.session()
-open_ai_key='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'
+myuuid = uuid.uuid4()
+history = Neo4jChatMessageHistory(
+    url="bolt://172.176.235.251:7687",
+    username="neo4j",
+    password="oPX^xVySa7u04AbR",
+    session_id=str(myuuid),
+
+    
+)
 @app.route('/',methods=["GET","POST"])
 def index():
     return render_template('index.html')
@@ -60,10 +74,15 @@ def send_msg():
     time_bot_msg=request.form["time_bot_msg"]
     time = datetime.now()
     human_time = time.strftime('%I:%M %p')
-    chat = ChatOpenAI(temperature=0, openai_api_key=open_ai_key)
-    history = ChatMessageHistory()
-    history.add_ai_message("hi!")
-    history.add_user_message(recived_user_msg)
-    ai_response = chat(history.messages)
-    return render_template('Login.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg,ai_response=ai_response.content)
+    deployment_name= 'gpt-35-turbo-16k'
+    os.environ["AZURE_OPENAI_API_KEY"] = "606a9f9d9d7d45ef8b1c71cec6e576e7"
+    os.environ["AZURE_OPENAI_ENDPOINT"] = "https://xavi9azureopenai.openai.azure.com/"
+    model = AzureChatOpenAI(
+        openai_api_version="2023-05-15",
+        azure_deployment=deployment_name,
+    )
+    messageH = HumanMessage(content= recived_user_msg)
+    response =model([messageH])
+    assistant_response = response.content
+    return render_template('Login.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg,ai_response=assistant_response)
 app.run(debug=True)
