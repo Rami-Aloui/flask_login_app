@@ -1,6 +1,7 @@
 from flask import Flask,render_template,request,session,redirect,flash;
 from neo4j import GraphDatabase,basic_auth;
 from cryptography.fernet import Fernet;
+from datetime import datetime;
 app = Flask(__name__)
 app.secret_key = 'secret-key'
 driver=GraphDatabase.driver(uri="bolt://172.176.235.251:7687",auth=basic_auth("neo4j","oPX^xVySa7u04AbR"))
@@ -27,10 +28,12 @@ def register():
     results=session.run(query)
     flash(f"User registered successfully", "success")
     return render_template('sign-up.html',mail=mail,pswd=pswd)
-@app.route('/Login',methods=["GET","POST"])
+@app.route('/Login',methods=["POST"])
 def Verify():
     mail=request.form["mail"]
     pswd=request.form["pswd"]
+    now = datetime.now()
+    bot_time = now.strftime('%I:%M %p')+",Today"
     query="""MATCH (n:Usuario) WHERE n.mail ='"""+mail+"""' RETURN n
     """  
     results=session.run(query)
@@ -40,11 +43,19 @@ def Verify():
         Second_f = Fernet(second_key)
         decryptedData = Second_f.decrypt(x[0]['n']['pswd'].encode())
         if decryptedData.decode()==pswd:
-            return render_template('Login.html',username=x[0]['n']['username'].capitalize())
+            return render_template('Login.html',username=x[0]['n']['username'].capitalize(),time_bot_msg=bot_time,recived_user_msg=None)
         else:
             flash(f"You have to verify your password", "danger")
             return redirect("/registered", code=302)
     else:
         flash(f"You have to verify your mail", "danger")
         return redirect("/registered", code=302)
+@app.route('/Login/sendmsg',methods=["GET","POST"])
+def send_msg():
+    recived_user_msg=request.form["user_msg"]
+    user_name=request.form["username"]
+    time_bot_msg=request.form["time_bot_msg"]
+    time = datetime.now()
+    human_time = time.strftime('%I:%M %p')
+    return render_template('Login.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg)
 app.run(debug=True)
