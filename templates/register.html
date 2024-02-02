@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
   <head><script src="/docs/5.3/assets/js/color-modes.js"></script>
@@ -16,8 +17,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
 
 <link href="/static/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
- <!-- Sweet alert Js -->
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 
 
@@ -149,15 +149,19 @@
 
     
 <main class="form-signin w-100 m-auto">
-  <form  action="/Login" method="POST" enctype="multipart/form-data">
+  <form  action="/login" method="POST" enctype="multipart/form-data">
     {% include "sweetalerts.html" %}
-    <h1 class="h3 mb-3 fw-normal">Please sign In</h1>
+    <h1 class="h3 mb-3 fw-normal">Please sign Up</h1>
     <div class="form-floating">
-      <input type="email" class="form-control" name="mail" id="mail"value={{mail}}>
+      <input type="text" class="form-control" name="login" id="login" placeholder="Please enter your name">
+      <label for="floatingInput">Username</label>
+    </div>
+    <div class="form-floating">
+      <input type="email" class="form-control" name="mail" id="mail" placeholder="name@example.com">
       <label for="floatingInput">Email address</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control" name="pswd" id="pswd" value={{pswd}}>
+      <input type="password" class="form-control" name="pswd" id="pswd" placeholder="Password">
       <label for="floatingPassword">Password</label>
     </div>
 
@@ -167,7 +171,7 @@
         Remember me
       </label>
     </div>
-    <button class="btn btn-primary w-100 py-2" type="submit" value="execute">Login</button>
+    <button class="btn btn-primary w-100 py-2" type="submit" value="execute">register</button>
   </form>
 </main>
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>

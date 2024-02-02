@@ -26,10 +26,25 @@ history = Neo4jChatMessageHistory(
 @app.route('/',methods=["GET","POST"])
 def index():
     return render_template('index.html')
+@app.route('/Register',methods=["GET","POST"])
+def signin():
+    return render_template('register.html')
+@app.route('/Log-in',methods=["GET","POST"])
+def log_in():
+    return render_template('login.html')
+@app.route('/investors',methods=["GET","POST"])
+def investors():
+    return render_template('investors.html')
+@app.route('/enterprise',methods=["GET","POST"])
+def enterprise():
+    return render_template('enterprise.html')
+@app.route('/digitalAssets',methods=["GET","POST"])
+def digitalAssets():
+    return render_template('digitalAssets.html')
 @app.errorhandler(400)
 def handle_bad_request(e):
-    return render_template('sign-up.html'), 400
-@app.route('/registered',methods=["GET","POST"])
+    return render_template('login.html'), 400
+@app.route('/login',methods=["GET","POST"])
 def register():
     login=request.form["login"]
     mail=request.form["mail"]
@@ -44,8 +59,8 @@ def register():
     """  
     results=session.run(query)
     flash(f"User registered successfully", "success")
-    return render_template('sign-up.html',mail=mail,pswd=pswd)
-@app.route('/Login',methods=["POST"])
+    return render_template('login.html',mail=mail,pswd=pswd)
+@app.route('/profile',methods=["POST"])
 def Verify():
     mail=request.form["mail"]
     pswd=request.form["pswd"]
@@ -60,14 +75,14 @@ def Verify():
         Second_f = Fernet(second_key)
         decryptedData = Second_f.decrypt(x[0]['n']['pswd'].encode())
         if decryptedData.decode()==pswd:
-            return render_template('Login.html',username=x[0]['n']['username'].capitalize(),time_bot_msg=bot_time,recived_user_msg=None,time_human_msg=None,ai_response=None)
+            return render_template('profile.html',username=x[0]['n']['username'].capitalize(),time_bot_msg=bot_time,recived_user_msg=None,time_human_msg=None,ai_response=None)
         else:
             flash(f"You have to verify your password", "danger")
-            return redirect("/registered", code=302)
+            return redirect("/login", code=302)
     else:
         flash(f"You have to verify your mail", "danger")
-        return redirect("/registered", code=302)
-@app.route('/Login/sendmsg',methods=["GET","POST"])
+        return redirect("/login", code=302)
+@app.route('/profile/sendmsg',methods=["GET","POST"])
 def send_msg():
     recived_user_msg=request.form["user_msg"]
     user_name=request.form["username"]
@@ -84,5 +99,5 @@ def send_msg():
     messageH = HumanMessage(content= recived_user_msg)
     response =model([messageH])
     assistant_response = response.content
-    return render_template('Login.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg,ai_response=assistant_response)
+    return render_template('profile.html',recived_user_msg=recived_user_msg,username=user_name,time_human_msg=human_time,time_bot_msg=time_bot_msg,ai_response=assistant_response)
 app.run(debug=True)
