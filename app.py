@@ -25,6 +25,20 @@ history = Neo4jChatMessageHistory(
 )
 @app.route('/',methods=["GET","POST"])
 def index():
+    if request.method == 'POST':
+        login = request.form['username']
+        typeuser=request.form['typeuser']
+        mail   = request.form['mail']
+        Mensaje = request.form['Mensaje']
+        query1="""MATCH (n:Usuario) WHERE n.username ='"""+login+"""' and n.mail ='"""+mail+"""' RETURN n, ID(n) as id"""  
+        results=session.run(query1)
+        datos=[ dict(i) for i in results]
+        if datos!=[]:
+            query2="""CREATE(msg:Mensajes{userid:'"""+str(datos[0]['id'])+"""',username:'"""+datos[0]['n']['username']+"""',usermail:'"""+datos[0]['n']['mail']+"""',usertype:'"""+typeuser+"""',Mensaje:'"""+Mensaje+"""'})"""  
+            results=session.run(query2)
+            flash(f"Message sended successfully", "success")
+        else:
+            flash(f"You have to verify your login and your mail", "danger")
     return render_template('index.html')
 @app.route('/Register',methods=["GET","POST"])
 def signin():
